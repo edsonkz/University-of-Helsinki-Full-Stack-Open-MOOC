@@ -1,13 +1,11 @@
-import React from 'react';
+import React from "react";
 
 const Person = ({ person }) => {
-  return (
-    <div>
-      <p>
-        {person.name} {person.number}
-      </p>
-    </div>
-  );
+	return (
+		<>
+			{person.name} {person.number}
+		</>
+	);
 };
 
 export default Person;

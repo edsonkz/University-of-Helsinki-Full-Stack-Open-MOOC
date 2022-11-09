@@ -6,7 +6,16 @@ const Persons = (props) => {
 		<div>
 			{props.persons.length > 0 ? (
 				props.persons.map((person) => (
-					<Person key={person.id} person={person} />
+					<div key={person.id}>
+						<Person person={person} />{" "}
+						<button
+							onClick={() => {
+								props.handleDelete(person);
+							}}
+						>
+							delete
+						</button>
+					</div>
 				))
 			) : (
 				<p> Nenhuma pessoa carregada...</p>
