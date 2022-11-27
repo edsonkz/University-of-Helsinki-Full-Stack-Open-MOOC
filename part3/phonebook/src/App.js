@@ -39,7 +39,6 @@ const App = () => {
 		let newPerson = {
 			name: newName,
 			number: newPhone,
-			id: persons.length + 1,
 		};
 		let oldPerson = persons.filter((person) => person.name === newName);
 		if (oldPerson.length > 0) {
@@ -65,10 +64,8 @@ const App = () => {
 						setNewName("");
 						setNewPhone("");
 					})
-					.catch(() => {
-						setNotification(
-							`Information about ${newPerson.name} has already been removed from server.`
-						);
+					.catch((error) => {
+						setNotification(error.response.data.error);
 						setErrorNotification(true);
 						setNewName("");
 						setNewPhone("");
@@ -76,18 +73,16 @@ const App = () => {
 		} else {
 			personsService
 				.create(newPerson)
-				.then(() => {
-					setPersons(persons.concat(newPerson));
+				.then((response) => {
+					setPersons(persons.concat(response.data));
 					setNotification(
 						`${newPerson.name} was added to the phone book.`
 					);
 					setNewName("");
 					setNewPhone("");
 				})
-				.catch(() => {
-					setNotification(
-						`Information about ${newPerson.name} has already been added to the server.`
-					);
+				.catch((error) => {
+					setNotification(error.response.data.error);
 					setErrorNotification(true);
 					setNewName("");
 					setNewPhone("");
