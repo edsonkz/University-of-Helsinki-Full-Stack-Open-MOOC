@@ -1,14 +1,25 @@
 const supertest = require("supertest");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+
 const helper = require("./test_helper");
 const app = require("../app");
 const api = supertest(app);
 
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 beforeEach(async () => {
 	await Blog.deleteMany({});
-
+	await User.deleteMany({});
+	const saltRounds = 10;
+	const passwordHash = await bcrypt.hash("admin", saltRounds);
+	const user = new User({
+		username: "admin",
+		name: "admin",
+		passwordHash,
+	});
+	await user.save();
 	const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
 	const promiseArray = blogObjects.map((blog) => blog.save());
 	await Promise.all(promiseArray);
@@ -33,6 +44,10 @@ describe("response format", () => {
 });
 
 describe("creating blog", () => {
+	const adminUser = {
+		username: "admin",
+		password: "admin",
+	};
 	test("a blog can be added", async () => {
 		const newBlog = {
 			title: "My Eggs",
@@ -41,15 +56,25 @@ describe("creating blog", () => {
 			likes: 200,
 		};
 
+		const data = await api.post("/api/login").send(adminUser);
+
 		await api
 			.post("/api/blogs")
 			.send(newBlog)
+			.set("authorization", `bearer ${data.body.token}`)
 			.expect(201)
-			.expect("Content-Type", /application\/json/)
-			.then((response) => {
-				const { id, ...blog } = response.body;
-				expect(blog).toEqual(newBlog);
-			});
+			.expect("Content-Type", /application\/json/);
+	});
+
+	test("a blog cannot be added without token", async () => {
+		const newBlog = {
+			title: "My Eggs",
+			author: "Eggman",
+			url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+			likes: 200,
+		};
+
+		await api.post("/api/blogs").send(newBlog).expect(401);
 	});
 
 	test("blog without likes", async () => {
@@ -59,9 +84,12 @@ describe("creating blog", () => {
 			url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
 		};
 
+		const data = await api.post("/api/login").send(adminUser);
+
 		await api
 			.post("/api/blogs")
 			.send(newBlog)
+			.set("authorization", `bearer ${data.body.token}`)
 			.expect(201)
 			.expect("Content-Type", /application\/json/)
 			.then((response) => {
@@ -80,17 +108,44 @@ describe("creating blog", () => {
 			url: "www.google.com",
 		};
 
-		await api.post("/api/blogs").send(newBlogNoURL).expect(400);
-		await api.post("/api/blogs").send(newBlogNoTITLE).expect(400);
+		const data = await api.post("/api/login").send(adminUser);
+
+		await api
+			.post("/api/blogs")
+			.set("authorization", `bearer ${data.body.token}`)
+			.send(newBlogNoURL)
+			.expect(400);
+		await api
+			.post("/api/blogs")
+			.set("authorization", `bearer ${data.body.token}`)
+			.send(newBlogNoTITLE)
+			.expect(400);
 	});
 });
 
 describe("deletion of a blog", () => {
-	test("succeeds with status code 204 if id is valid", async () => {
-		const blogsAtStart = await helper.blogsInDb();
-		const blogToDelete = blogsAtStart[0];
+	const adminUser = {
+		username: "admin",
+		password: "admin",
+	};
+	const newBlog = {
+		title: "My Eggs",
+		author: "Eggman",
+		url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+		likes: 200,
+	};
 
-		await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+	test("succeeds with status code 204 if id is valid", async () => {
+		const data = await api.post("/api/login").send(adminUser);
+		const blogToDelete = await api
+			.post("/api/blogs")
+			.set("authorization", `bearer ${data.body.token}`)
+			.send(newBlog);
+
+		await api
+			.delete(`/api/blogs/${blogToDelete.body.id}`)
+			.set("authorization", `bearer ${data.body.token}`)
+			.expect(204);
 
 		const blogsAtEnd = await helper.blogsInDb();
 		const titles = blogsAtEnd.map((r) => r.title);
