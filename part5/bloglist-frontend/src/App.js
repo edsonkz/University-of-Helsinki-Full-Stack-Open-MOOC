@@ -25,6 +25,7 @@ const App = () => {
         filteredBlogs.sort((p1, p2) =>
           p1.likes < p2.likes ? 1 : p1.likes > p2.likes ? -1 : 0
         )
+        console.log(filteredBlogs)
         setBlogs(filteredBlogs)
       })
     }
