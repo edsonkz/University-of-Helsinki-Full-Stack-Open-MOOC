@@ -1,0 +1,11 @@
+.header {
+  background-color: rgb(190, 190, 190);
+  list-style-type: none;
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.nav {
+  display: inline;
+  margin-right: 0.5rem;
+}

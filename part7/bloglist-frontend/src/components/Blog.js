@@ -1,28 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
+
 import { voteOn, removeBlog } from "../reducers/blogReducer";
+import blogServices from "../services/blogs";
 
-const Blog = ({ blog }) => {
+const Blog = () => {
+  const id = useParams().id;
   const dispatch = useDispatch();
-  const [visible, setVisible] = useState(false);
+  const [blog, setBlog] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [content, setContent] = useState("");
 
-  const hideWhenVisible = { display: visible ? "none" : "" };
-  const showWhenVisible = { display: visible ? "" : "none" };
+  useEffect(() => {
+    const getBlog = async () => {
+      const blog = await blogServices.getOne(id);
+      const comments = await blogServices.getComments(id);
+      setBlog(blog);
+      setComments(comments);
+    };
 
-  const toggleVisibility = () => {
-    setVisible(!visible);
-  };
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
-  };
+    getBlog();
+  }, []);
 
   const addLike = () => {
     dispatch(voteOn(blog));
+    setBlog({ ...blog, likes: blog.likes + 1 });
+  };
+
+  const addComment = async () => {
+    const comment = await blogServices.createComment(id, content);
+    setComments(comments.concat(comment));
+    setContent("");
   };
 
   const deleteBlog = () => {
@@ -32,28 +41,39 @@ const Blog = ({ blog }) => {
   };
 
   return (
-    <div style={blogStyle} className="blog">
-      <div>
-        <div style={showWhenVisible} className="subInfo">
-          {blog.title} by {blog.author}{" "}
-          <button onClick={toggleVisibility}>hide</button>
-          <br />
-          {blog.url}
-          <br />
-          likes {blog.likes}
-          <button onClick={addLike}>like</button>
-          <br />
-          {blog.user.name}
-          <br />
-          <button onClick={deleteBlog}>remove</button>
-        </div>
-        <div style={hideWhenVisible} className="mainInfo">
-          {blog.title} by {blog.author}{" "}
-          <button onClick={toggleVisibility} className="viewButton">
-            view
-          </button>
-        </div>
-      </div>
+    <div className="blog">
+      {blog ? (
+        <>
+          <div>
+            <h1>
+              {blog.title} {blog.author}{" "}
+            </h1>
+            <a href={blog.url}>{blog.url}</a>
+            <br />
+            likes {blog.likes}
+            <button onClick={addLike}>like</button>
+            <br />
+            added by {blog.user.name}
+            <br />
+          </div>
+          <div className="comments">
+            <h3>comments</h3>
+            <input
+              type="text"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <button onClick={addComment}>add comment</button>
+            <ul>
+              {comments.map((comment) => (
+                <li key={comment.id}>{comment.content}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      ) : (
+        <h3>Blog not found...</h3>
+      )}
     </div>
   );
 };

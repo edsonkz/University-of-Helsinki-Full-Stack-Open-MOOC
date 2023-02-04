@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 import Notification from "./components/Notification";
 import Blog from "./components/Blog";
@@ -16,13 +16,18 @@ import blogsService from "./services/blogs";
 import { initializeBlogs } from "./reducers/blogReducer";
 import { savedUser } from "./reducers/userReducer";
 
-import "./style.css";
-
 const App = () => {
   const dispatch = useDispatch();
   const blogs = useSelector((state) => state.blogs);
-  const setBlogs = () => {};
   const user = useSelector((state) => state.user);
+
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: "solid",
+    borderWidth: 1,
+    marginBottom: 5,
+  };
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
@@ -39,7 +44,11 @@ const App = () => {
       <div>
         {createForm()}
         {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
+          <div key={blog.id} style={blogStyle}>
+            <Link to={`/blogs/${blog.id}`}>
+              {blog.title} {blog.author}
+            </Link>
+          </div>
         ))}
       </div>
     );
@@ -56,10 +65,11 @@ const App = () => {
   return (
     <div>
       <Notification />
-      <Header />
       <Router>
+        <Header />
         <Routes>
           <Route path="/users/:id" element={<User />} />
+          <Route path="/blogs/:id" element={<Blog />} />
           <Route path="/users/" element={<Users />} />
           <Route
             path="/"
