@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logoutUser } from "../reducers/userReducer";
+import { Button } from "react-bootstrap";
 
 import "./style.css";
 
@@ -26,10 +27,11 @@ const Header = () => {
           <Link to={`/users`}>users</Link>
         </li>
         <li className="nav">
-          {user.name} logged-in <button onClick={handleLogout}>logout</button>
+          {user.name} logged-in <Button onClick={handleLogout}>logout</Button>
         </li>
       </ul>
-      <h1>blog app</h1>
+      <h1>Blog App</h1>
+      <hr />
     </div>
   );
 };

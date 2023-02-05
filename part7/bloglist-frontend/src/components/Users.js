@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Table } from "react-bootstrap";
 
 import userService from "../services/users";
 
@@ -17,26 +18,26 @@ const Users = () => {
 
   return (
     <div>
-      <h1>Users</h1>
+      <h2>Users</h2>
       {users ? (
-        <table>
+        <Table>
           <tbody>
             <tr>
-              <th></th>
+              <th>username</th>
               <th style={{ fontWeight: "bold" }}>blogs created</th>
             </tr>
             {users.map((user) => (
               <tr key={user.id}>
-                <th>
+                <td>
                   <Link to={`/users/${user.id}`} state={{ user }}>
                     {user.name}
                   </Link>
-                </th>
-                <th>{user.blogs.length}</th>
+                </td>
+                <td>{user.blogs.length}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       ) : (
         <>No users found...</>
       )}

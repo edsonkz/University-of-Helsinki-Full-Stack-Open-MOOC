@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import blogServices from "../services/blogs";
 import userServices from "../services/users";
+import { ListGroup, ListGroupItem } from "react-bootstrap";
 
 const User = () => {
   const id = useParams().id;
@@ -28,12 +29,12 @@ const User = () => {
   return (
     <div>
       {user ? <h1>{user.name}</h1> : <></>}
-      <h2>added blogs</h2>
-      <ul>
+      <h3>Added Blogs</h3>
+      <ListGroup variant="flush">
         {blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListGroup.Item key={blog.id}>{blog.title}</ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
     </div>
   );
 };

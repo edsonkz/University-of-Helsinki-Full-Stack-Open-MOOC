@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Table } from "react-bootstrap";
 
 import Notification from "./components/Notification";
 import Blog from "./components/Blog";
@@ -43,27 +44,36 @@ const App = () => {
     return (
       <div>
         {createForm()}
-        {blogs.map((blog) => (
-          <div key={blog.id} style={blogStyle}>
-            <Link to={`/blogs/${blog.id}`}>
-              {blog.title} {blog.author}
-            </Link>
-          </div>
-        ))}
+        <Table striped>
+          <tbody>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+            </tr>
+            {blogs.map((blog) => (
+              <tr key={blog.id}>
+                <td>
+                  <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                </td>
+                <td>{blog.author}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
     );
   };
 
   const createForm = () => {
     return (
-      <Togglable buttonLabel="new blog">
+      <Togglable buttonLabel="New Blog">
         <CreateBlog />
       </Togglable>
     );
   };
 
   return (
-    <div>
+    <div className="container">
       <Notification />
       <Router>
         <Header />

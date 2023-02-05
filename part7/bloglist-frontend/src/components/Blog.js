@@ -5,6 +5,8 @@ import { useDispatch } from "react-redux";
 import { voteOn, removeBlog } from "../reducers/blogReducer";
 import blogServices from "../services/blogs";
 
+import { Button } from "react-bootstrap";
+
 const Blog = () => {
   const id = useParams().id;
   const dispatch = useDispatch();
@@ -51,24 +53,24 @@ const Blog = () => {
             <a href={blog.url}>{blog.url}</a>
             <br />
             likes {blog.likes}
-            <button onClick={addLike}>like</button>
+            <Button onClick={addLike}>like</Button>
             <br />
             added by {blog.user.name}
             <br />
           </div>
           <div className="comments">
-            <h3>comments</h3>
-            <input
-              type="text"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-            />
-            <button onClick={addComment}>add comment</button>
+            <h3>Comments</h3>
             <ul>
               {comments.map((comment) => (
                 <li key={comment.id}>{comment.content}</li>
               ))}
             </ul>
+            <input
+              type="text"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <Button onClick={addComment}>add comment</Button>
           </div>
         </>
       ) : (
